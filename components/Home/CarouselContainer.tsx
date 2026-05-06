@@ -1,17 +1,17 @@
 import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
 import { Carousel } from "react-responsive-carousel";
-import Image from "next/image";
-
-import slider1 from "../../public/assets/images/slider-1.jpg";
-import slider2 from "../../public/assets/images/slider-2.jpg";
-import slider3 from "../../public/assets/images/slider-3.jpg";
-import slider4 from "../../public/assets/images/slider-4.jpg";
-import slider5 from "../../public/assets/images/slider-5.jpg";
 import { CSSProperties } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
+const defaultSlides = [
+    { image: "/assets/images/slider-1.jpg", href: "/", alt: "slider 1" },
+    { image: "/assets/images/slider-2.jpg", href: "/", alt: "slider 2" },
+    { image: "/assets/images/slider-3.jpg", href: "/", alt: "slider 3" },
+    { image: "/assets/images/slider-4.jpg", href: "/", alt: "slider 4" },
+    { image: "/assets/images/slider-5.jpg", href: "/", alt: "slider 5" },
+];
 
-const CarouselContainer = () => {
+const CarouselContainer = ({ slides = [] }: any) => {
     const arrowStyles: CSSProperties = {
         position: "absolute",
         zIndex: 2,
@@ -23,7 +23,12 @@ const CarouselContainer = () => {
         color: "#404040",
     };
 
+    const activeSlides = Array.isArray(slides) && slides.length
+        ? slides.filter((slide: any) => slide?.image)
+        : defaultSlides;
+
     return (
+        <div className="relative">
             <Carousel
                 renderArrowPrev={(onClickHandler, hasPrev, label) =>
                     hasPrev && (
@@ -58,22 +63,20 @@ const CarouselContainer = () => {
                 showIndicators={false}
                 showThumbs={false}
             >
-                <div>
-                    <Image src={slider1} alt="slider1" />
-                </div>
-                <div>
-                    <Image src={slider2} alt="slider1" />
-                </div>
-                <div>
-                    <Image src={slider3} alt="slider1" />
-                </div>
-                <div>
-                    <Image src={slider4} alt="slider4" />
-                </div>
-                <div>
-                    <Image src={slider5} alt="slider5" />
-                </div>
+                {activeSlides.map((slide: any, index: number) => (
+                    <div key={`${slide.image}-${index}`}>
+                        <a href={slide?.href || "/"}>
+                            <img
+                                src={slide.image}
+                                alt={slide?.alt || `slider ${index + 1}`}
+                                className="w-full h-[240px] sm:h-[300px] md:h-[380px] lg:h-[460px] object-cover object-top"
+                            />
+                        </a>
+                    </div>
+                ))}
             </Carousel>
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-gray-100" />
+        </div>
     );
 };
 

@@ -1,10 +1,12 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/dist/client/router";
 import { useState } from "react";
+import { useI18n } from "@/context/i18n";
 
 const Search = ({searchHandler}: any) => {
     const router = useRouter();
     const [query, setQuery] = useState(router.query?.search || "");
+    const { t } = useI18n();
     // const [showSearch, setShowSearch] = useState(false);
 
     const handleSearch = (e: any) => {
@@ -24,7 +26,7 @@ const Search = ({searchHandler}: any) => {
         <div className="flex-grow relative">
             <form
                 onSubmit={(e) => handleSearch(e)}
-                className="bg-amazon-orange flex flex-grow items-center rounded-md max-md:mx-4 max-md:mb-2"
+                className="bg-white flex flex-grow items-center rounded-md max-md:mx-4 max-md:mb-2 border border-vendora shadow-[0_8px_22px_rgba(123,47,247,0.12)]"
             >
                 <select
                     defaultValue="All"
@@ -42,12 +44,14 @@ const Search = ({searchHandler}: any) => {
                     // onClick={() => setShowSearch((prev) => !prev)}
                     type="text"
                     className="outline-none w-full h-11 text-black pl-3 max-md:rounded-l"
-                    placeholder="Search Amazon"
+                    placeholder={t("searchPlaceholder")}
                     onChange={(e: any) => setQuery(e.target.value)}
                     defaultValue={query}
                 />
                 <button type="submit">
-                    <MagnifyingGlassIcon className="text-amazon-blue_dark h-8 w-8 my-1 mx-2 cursor-pointer" />
+                    <span className="flex items-center justify-center h-11 w-11 rounded-r-md bg-gradient-to-r from-[#7B2FF7] to-[#B06CFF]">
+                        <MagnifyingGlassIcon className="text-white h-6 w-6" />
+                    </span>
                 </button>
             </form>
             {/* {showSearch && (

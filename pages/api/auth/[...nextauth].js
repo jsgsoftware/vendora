@@ -2,8 +2,6 @@ import NextAuth from "next-auth"
 import GithubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google"
 
-import { MongoDBAdapter } from "@next-auth/mongodb-adapter"
-import clientPromise from "./lib/mongodb"
 import CredentialsProvider from "next-auth/providers/credentials";
 
 import db from "../../../utils/db";
@@ -13,19 +11,22 @@ import bcrypt from "bcrypt";
 db.connectDb();
 
 export const authOptions = {
-    adapter: MongoDBAdapter(clientPromise),
-  // Configure one or more authentication providers
   providers: [
     CredentialsProvider({
       name: "Credentials",
       async authorize(credentials, req) {
-        const email  = credentials.email;
-        const password = credentials.password;
-        const user = await User.findOne({ email })
-        if (user) {
-          return signInUser({ password, user });
-        } else {
-          throw new Error("This email does not exist.")
+        try {
+          const email  = credentials.email;
+          const password = credentials.password;
+          const user = await User.findOne({ email })
+          if (user) {
+            const result = await signInUser({ password, user });
+            return result;
+          } else {
+            return null;
+          }
+        } catch (e) {
+          return null;
         }
       }
     }),
@@ -40,11 +41,49 @@ export const authOptions = {
     // ...add more providers here
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      if (!user?.email) {
+        return false;
+      }
+
+      if (account?.provider === "credentials") {
+        return true;
+      }
+
+      const existingUser = await User.findOne({ email: user.email });
+      if (!existingUser) {
+        const newUser = new User({
+          name: user.name || user.email,
+          email: user.email,
+          image: user.image || "https://i.im.ge/2023/04/25/Lg2cWX.user-image-default.jpg",
+          emailVerified: true,
+          role: "user",
+          password: "",
+          address: [],
+          whishlist: [],
+          defaultPaymentMethod: "",
+        });
+        await newUser.save();
+      }
+
+      return true;
+    },
+    async jwt({ token, user }) {
+      if (user?.email) {
+        const dbUser = await User.findOne({ email: user.email });
+        if (dbUser) {
+          token.sub = dbUser._id;
+          token.role = dbUser.role || "user";
+        }
+      }
+      return token;
+    },
     async session({ session, token }) {
       let user = await User.findById(token.sub);
-      session.user.id = user.token || user.id.toString();
-      session.user.role = user.role || "user";
-      token.role = user.role || "user";
+      session.user.id = user?._id || token.sub;
+      session.user.role = user?.role || token.role || "user";
+      session.user.name = user?.name || session.user.name;
+      session.user.image = user?.image || session.user.image;
       return session; 
     },
   },

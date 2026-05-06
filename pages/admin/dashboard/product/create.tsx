@@ -1,15 +1,17 @@
 import Layout from "@/components/admin/layout/Layout";
 import CreateProduct from "@/components/admin/product/CreateProduct";
 import db from "../../../../utils/db";
-import Product from "../../../../models/Product";
 import Category from "../../../../models/Category";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { requirePortalSession } from "@/utils/portalAuth";
 
 const initialState = {
     name: "",
     description: "",
+    productType: "physical",
     brand: "",
+    weight: 0,
     sku: "",
     discount: 0,
     images: [],
@@ -41,9 +43,13 @@ const initialState = {
         },
     ],
     shippingFee: "",
+    bookingType: "date_time",
+    bookingDuration: "60",
+    subscriptionIntervals: [],
+    subscriptionDeliveries: [],
 };
 
-const Create = ({ parents, categories }: any) => {
+const Create = ({ categories }: any) => {
     const [product, setProduct] = useState(initialState);
     const [subs, setSubs] = useState([]);
     const [colorImage, setColorImage] = useState("");
@@ -51,38 +57,22 @@ const Create = ({ parents, categories }: any) => {
     const [description_images, setDescription_images] = useState("");
     const [loading, setLoading] = useState(false);
 
-
-    useEffect(() => {    
-        async function getParentData() {
-            const { data } = await axios.get(`/api/product/${product.parent || ""}`);
-            if(data) {
-                setProduct({
-                    ...product,
-                    name: data.name,
-                    description: data.description,
-                    brand: data.brand,
-                    category: data.category,
-                    subCategories: data.subCategories,
-                    questions: data.questions,
-                    details: data.details,
-                    discount: data.discount
-                })
-            }
-            // console.log('id product: ', data)
-        };
-        if (product.parent) {
-            getParentData();
-        }
-    }, [product.parent]);
-
     useEffect(() => {
         async function getSubs() {
-            const { data } = await axios.get("/api/admin/subcategory", {
-                params: {
-                    category: product.category,
-                },
-            });
-            setSubs(data);
+            if (!product.category) {
+                setSubs([]);
+                return;
+            }
+            try {
+                const { data } = await axios.get("/api/admin/subcategory", {
+                    params: {
+                        category: product.category,
+                    },
+                });
+                setSubs(Array.isArray(data) ? data : []);
+            } catch {
+                setSubs([]);
+            }
         }
         getSubs();
     }, [product.category]);
@@ -90,7 +80,6 @@ const Create = ({ parents, categories }: any) => {
     return (
         <Layout>
             <CreateProduct
-                parents={parents}
                 product={product}
                 setProduct={setProduct}
                 categories={categories}
@@ -110,14 +99,19 @@ const Create = ({ parents, categories }: any) => {
 export default Create;
 
 export async function getServerSideProps(ctx: any) {
+    const auth = await requirePortalSession(ctx, ["admin"]);
+    if (!auth.ok) {
+        return auth.redirect;
+    }
+
     db.connectDb();
-    const results = await Product.find().select("name subProducts").lean();
-    const categories = await Category.find().lean();
+    const categories = (await Category.find().lean()).filter(
+        (cat: any) => (cat?.status || "active") === "active"
+    );
     db.disconnectDb();
 
     return {
         props: {
-            parents: JSON.parse(JSON.stringify(results)),
             categories: JSON.parse(JSON.stringify(categories)),
         },
     };

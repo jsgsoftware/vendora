@@ -37,19 +37,40 @@ handler.post(async (req, res) => {
             name,
             email,
             password: cryptedPassword,
+            role: "user",
+            image: "https://i.im.ge/2023/04/25/Lg2cWX.user-image-default.jpg",
+            emailVerified: false,
+            defaultPaymentMethod: "",
+            address: [],
+            whishlist: [],
         });
         const addedUser = await newUser.save();
 
-        const activation_token = createActivationToken({
-            id: addedUser._id.toString(),
-        });
+        const canSendActivationEmail =
+            !!process.env.ACTIVATION_TOKEN_SECRET &&
+            !!process.env.BASE_URL &&
+            !!process.env.MAILING_SERVICE_CLIENT_ID &&
+            !!process.env.MAILING_SERVICE_CLIENT_SECRET &&
+            !!process.env.MAILING_SERVICE_REFRESH_TOKEN &&
+            !!process.env.SENDER_EMAIL_ADDRESS;
 
-        const url = `${process.env.BASE_URL}/activate/${activation_token}`;
+        let message = "Register success!";
 
-        sendEmail(email, url,"", "Activate your account", activateEmailTemplate);
+        if (canSendActivationEmail) {
+            try {
+                const activation_token = createActivationToken({
+                    id: addedUser._id.toString(),
+                });
+                const url = `${process.env.BASE_URL}/activate/${activation_token}`;
+                sendEmail(email, url, "", "Activate your account", activateEmailTemplate);
+                message = "Register success! Please check your email to activate your account.";
+            } catch (_error) {
+                message = "Register success! Activation email is currently unavailable.";
+            }
+        }
 
         await db.disconnectDb();
-        res.json({ message: "Register success! please activate your email to start."})
+        res.json({ message })
 
     } catch (error) {
         res.status(500).json({ message: error.message });

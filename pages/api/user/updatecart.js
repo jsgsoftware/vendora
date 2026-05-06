@@ -13,7 +13,7 @@ handler.post(async (req, res) => {
         const promises = req.body.products.map( async(p) => {
             let productDb = await Product.findById(p._id).lean();
             let originalPrice = Number(productDb.subProducts[p.style].sizes.find((x) => x.size == p.size).price);
-            let quantity = Number(productDb.subProducts[p.style].sizes.find((x) => x.size == x.size).qty);
+            let quantity = Number(productDb.subProducts[p.style].sizes.find((x) => x.size == p.size).qty);
             let discount = Number(productDb.subProducts[p.style].discount);
             console.log('price', originalPrice)
             return {

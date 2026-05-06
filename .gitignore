@@ -31,8 +31,28 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Docker - self-hosted stack files ARE included (they are required to run the project)
+# Only exclude the auto-cloned InsForge submodule and local secrets
+insforge/
+.env
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
 
+
+# InsForge & AI agent skills
+.insforge
+.agent
+.agents
+.augment
+.claude
+.cline
+.github/copilot*
+.kilocode
+.qoder
+.qwen
+.roo
+.trae
+.windsurf

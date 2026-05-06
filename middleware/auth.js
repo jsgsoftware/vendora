@@ -1,20 +1,25 @@
 import { getToken } from "next-auth/jwt";
+import { getSession } from "next-auth/react";
 
 const auth = async (req, res, next) => {
+    const session = await getSession({ req });
+    if (session?.user?.id) {
+        req.user = session.user.id;
+        return next();
+    }
+
     const token = await getToken({
         req,
         secret: process.env.JWT_SECRET,
-        secureCookie: process.env.NODE_ENV === "production",
+        secureCookie: false,
     });
 
-    if(token) {
-        // sing in
+    if (token?.sub) {
         req.user = token.sub;
-        next();
-    } else {
-        res.status(401).json({ message: "Not signed in: "});
+        return next();
     }
-    // res.end();
+
+    return res.status(401).json({ message: "Not signed in:" });
 };
 
 export default auth;

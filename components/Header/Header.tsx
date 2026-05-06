@@ -1,16 +1,16 @@
-import Image from "next/image";
 import { useAppDispatch } from "@/redux/hooks";
 import Head from "next/head";
 import { openMenu } from "@/redux/slices/MenuSlice";
 import Search from "./Search";
 
 import { Bars3Icon } from "@heroicons/react/24/outline";
-import amazonLogo from "../../public/assets/images/amazon-logo.png";
+import Image from "next/image";
 import AccountButtons from "./AccountButtons";
 import Language from "./Language";
 import HeaderBottom from "./HeaderBottom";
 import DeliveryTo from "./DeliveryTo";
 import Link from "next/link";
+import vendoraLogo from "../../public/assets/images/vendora-logo.png";
 
 const Header = ({title, searchHandler}: any) => {
     const dispatch = useAppDispatch();
@@ -23,15 +23,15 @@ const Header = ({title, searchHandler}: any) => {
         <>
             <Head>
                 <title>{title}</title>
-                <meta name="description" content="full amazon clone React" />
+                <meta name="description" content="Vendora multivendor marketplace" />
                 <meta
                     name="viewport"
                     content="width=device-width, initial-scale=1"
                 />
             </Head>
             <header>
-                <div className="bg-amazon-blue_dark flex flex-col md:flex-row">
-                    <div className="flex flex-grow items-center p-3 md:space-x-5 md:px-4 text-white">
+                <div className="bg-amazon-blue_dark flex flex-col md:flex-row border-b border-vendora">
+                    <div className="flex flex-grow items-center p-3 md:space-x-5 md:px-4 text-vendora-ink">
                         {/* Menu Icon Mobile */}
                         <div className="flex items-center justify-center">
                             <div
@@ -43,9 +43,10 @@ const Header = ({title, searchHandler}: any) => {
                             {/* Logo */}
                             <Link href="/">
                                 <Image
-                                    src={amazonLogo}
-                                    alt="amazon-logo"
-                                    className="object-contain w-20 md:w-28 pt-2"
+                                    src={vendoraLogo}
+                                    alt="Vendora logo"
+                                    className="object-contain w-28 md:w-36"
+                                    priority
                                 />
                             </Link>
                         </div>

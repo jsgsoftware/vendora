@@ -26,7 +26,12 @@ export default SignIn;
 
 export const getServerSideProps = async (context: any) => {
     const { req, query } = context;
-    const { callbackUrl = null } = query || null;
+    const rawCallbackUrl = query?.callbackUrl;
+    const callbackUrl = Array.isArray(rawCallbackUrl)
+        ? rawCallbackUrl[0]
+        : typeof rawCallbackUrl === "string"
+            ? rawCallbackUrl
+            : "/";
     // console.log('call:',callbackUrl, query, context)
 
     const session = await getSession({req});
@@ -34,7 +39,8 @@ export const getServerSideProps = async (context: any) => {
     if(session) {
         return {
             redirect: {
-                destination: callbackUrl
+                destination: callbackUrl,
+                permanent: false,
             }
         }
     }

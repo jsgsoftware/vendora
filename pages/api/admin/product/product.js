@@ -2,6 +2,7 @@ import nc from "next-connect";
 import db from "../../../../utils/db";
 import Product from "../../../../models/Product";
 import slugify from "slugify";
+import { syncProductToMv } from "../../../../utils/mvSync";
 
 const handler = nc();
 
@@ -15,7 +16,7 @@ handler.post( async (req, res) => {
                     message: "Parent Product not found!",
                 })
             } else {
-                const newParent = await parent.updateOne({
+                await parent.updateOne({
                     $push: {
                         subProducts: {
                             sku: req.body.sku,
@@ -26,6 +27,8 @@ handler.post( async (req, res) => {
                         }
                     }
                 },{new: true})
+                const updatedParent = await Product.findById(req.body.parent);
+                await syncProductToMv(updatedParent);
                 res.status(200).json({ message: "Product created successfully."});
             }
         } else {
@@ -50,6 +53,7 @@ handler.post( async (req, res) => {
                 ],
             });
             await newProduct.save();
+            await syncProductToMv(newProduct);
             res.status(200).json({ message: "Product created successfully."});
         }
         db.disconnectDb();

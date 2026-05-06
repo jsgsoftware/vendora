@@ -16,9 +16,12 @@ handler.put( async (req, res) => {
         }
 
         const cryptedPassword = await bcrypt.hash(password, 12);
-        await User.updateOne({ 
-            password: cryptedPassword
-        });
+        await User.updateOne(
+            { _id: userId },
+            {
+                password: cryptedPassword,
+            }
+        );
 
         res.json({ email: user.email, message: "password successfully reset." });
 

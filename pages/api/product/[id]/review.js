@@ -15,27 +15,23 @@ handler.put(async (req, res) => {
                 (x) => x.reviewBy.toString() == req.user
             );
             if (exist) {
-                await Product.updateOne(
-                    {
-                        _id: req.query.id,
-                        "reviews._id": exist._id,
-                    },
-                    {
-                        $set: {
-                            "reviews.$.review": req.body.review,
-                            "reviews.$.rating": req.body.rating,
-                            "reviews.$.size": req.body.size,
-                            "reviews.$.fit": req.body.fit,
-                            "reviews.$.images": req.body.images,
-                            "reviews.$.style": req.body.style,
-                        },
-                    },
-                    {
-                        new: true,
+                product.reviews = product.reviews.map((review) => {
+                    if (review._id.toString() !== exist._id.toString()) {
+                        return review;
                     }
-                );
 
-                const updatedProduct = await Product.findById(req.query.id);
+                    return {
+                        ...review,
+                        review: req.body.review,
+                        rating: req.body.rating,
+                        size: req.body.size,
+                        fit: req.body.fit,
+                        images: req.body.images,
+                        style: req.body.style,
+                    };
+                });
+
+                const updatedProduct = product;
                 updatedProduct.numberReviews = updatedProduct.reviews.length;
                 updatedProduct.rating =
                     updatedProduct.reviews.reduce((a, r) => r.rating + a, 0) /

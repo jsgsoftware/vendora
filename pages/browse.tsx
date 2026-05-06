@@ -1,8 +1,4 @@
-import Category from "@/models/Category";
-import Product from "@/models/Product";
-import SubCategory from "@/models/SubCategory";
-import db from "@/utils/db";
-import { filterArray, removeDublicates, randomize } from "@/utils/array_utils";
+import { getBrowseData } from "@/utils/mvCatalogRead";
 import Header from "@/components/Header/Header";
 import Link from "next/link";
 import ProductCard from "@/components/Home/productCard/ProductCard";
@@ -355,221 +351,19 @@ const Browse = ({
 export default Browse;
 
 export async function getServerSideProps(context: any) {
-    const { query } = context;
-    const searchQuery = query.search || "";
-    const categoryQuery = query.category || "";
-    const priceQuery = query.price?.split("_") || "";
-    const shippingQuery = query.shipping || 0;
-    const ratingQuery = query.rating || "";
-    const sortQuery = query.sort || "";
-    const pageSize = 10;
-    const page = query.page || 1;
-    // --------------------------------------------------
-    const brandQuery = query.brand?.split("_") || "";
-    const brandRegex = `^${brandQuery[0]}`;
-    const brandSearchRegex = createRegex(brandQuery, brandRegex);
-    // --------------------------------------------------
-    const styleQuery = query.style?.split("_") || "";
-    const styleRegex = `^${styleQuery[0]}`;
-    const styleSearchRegex = createRegex(styleQuery, styleRegex);
-    // --------------------------------------------------
-    const sizeQuery = query.size?.split("_") || "";
-    const sizeRegex = `^${sizeQuery[0]}`;
-    const sizeSearchRegex = createRegex(sizeQuery, sizeRegex);
-    // --------------------------------------------------
-    const colorQuery = query.color?.split("_") || "";
-    const colorRegex = `^${colorQuery[0]}`;
-    const colorSearchRegex = createRegex(colorQuery, colorRegex);
-    // --------------------------------------------------
-    const materialQuery = query.material?.split("_") || "";
-    const materialRegex = `^${materialQuery[0]}`;
-    const materialSearchRegex = createRegex(materialQuery, materialRegex);
-    // --------------------------------------------------
-    // --------------------------------------------------
-    const genderQuery = query.gender?.split("_") || "";
-    const genderRegex = `^${genderQuery[0]}`;
-    const genderSearchRegex = createRegex(genderQuery, genderRegex);
-    // --------------------------------------------------
-    const search =
-        searchQuery && searchQuery !== ""
-            ? {
-                  name: {
-                      $regex: searchQuery,
-                      $options: "i",
-                  },
-              }
-            : {};
-    const category =
-        categoryQuery && categoryQuery !== ""
-            ? { category: categoryQuery }
-            : {};
-    // const brand = brandQuery && brandQuery !== "" ? { brand: brandQuery } : {};
-    const style =
-        styleQuery && styleQuery !== ""
-            ? {
-                  "details.value": {
-                      $regex: styleSearchRegex,
-                      $options: "i",
-                  },
-              }
-            : {};
-    const size =
-        sizeQuery && sizeQuery !== ""
-            ? {
-                  "subProducts.sizes.size": {
-                      $regex: sizeSearchRegex,
-                      $options: "i",
-                  },
-              }
-            : {};
-    const color =
-        colorQuery && colorQuery !== ""
-            ? {
-                  "subProducts.color.color": {
-                      $regex: colorSearchRegex,
-                      $options: "i",
-                  },
-              }
-            : {};
-    const brand =
-        brandQuery && brandQuery !== ""
-            ? {
-                  brand: {
-                      $regex: brandSearchRegex,
-                      $options: "i",
-                  },
-              }
-            : {};
-    const material =
-        materialQuery && materialQuery !== ""
-            ? {
-                  "details.value": {
-                      $regex: materialSearchRegex,
-                      $options: "i",
-                  },
-              }
-            : {};
-    const gender =
-        genderQuery && genderQuery !== ""
-            ? {
-                  "details.value": {
-                      $regex: genderSearchRegex,
-                      $options: "i",
-                  },
-              }
-            : {};
-    const price =
-        priceQuery && priceQuery !== ""
-            ? {
-                  "subProducts.sizes.price": {
-                      $gte: Number(priceQuery[0]) || 0,
-                      $lte: Number(priceQuery[1]) || Infinity,
-                  },
-              }
-            : {};
-    const shipping =
-        shippingQuery && shippingQuery == "0"
-            ? {
-                  shipping: 0,
-              }
-            : {};
-    const rating =
-        ratingQuery && ratingQuery !== ""
-            ? {
-                  rating: {
-                      $gte: Number(ratingQuery),
-                  },
-              }
-            : {};
-
-    const sort =
-        sortQuery == ""
-            ? {}
-            : sortQuery == "popular"
-            ? { rating: -1, "subProducts.sold": -1 }
-            : sortQuery == "newest"
-            ? { createdAt: -1 }
-            : sortQuery == "topSelling"
-            ? { "subProducts.sold": -1 }
-            : sortQuery == "topReviewed"
-            ? { rating: -1 }
-            : sortQuery == "priceHighToLow"
-            ? { "subProducts.sizes.price": -1 }
-            : sortQuery == "priceLowToHight"
-            ? { "subProducts.sizes.price": 1 }
-            : {};
-    // --------------------------------------------------
-    function createRegex(data: any, styleRegex: any) {
-        if (data.length > 1) {
-            for (let i = 1; i < data.length; i++) {
-                styleRegex += `|^${data[i]}`;
-            }
-        }
-        return styleRegex;
-    }
-    // --------------------------------------------------
-    db.connectDb();
-    let productsDb = await Product.find({
-        ...search,
-        ...category,
-        ...brand,
-        ...style,
-        ...size,
-        ...color,
-        ...material,
-        ...gender,
-        ...price,
-        ...shipping,
-        ...rating,
-    })
-        .skip(pageSize * (page - 1))
-        .limit(pageSize)
-        .sort(sort)
-        .lean();
-    let products =
-        sortQuery && sortQuery !== "" ? productsDb : randomize(productsDb);
-    let categories = await Category.find().lean();
-    let subCategories = await SubCategory.find()
-        .populate({ path: "parent", model: Category })
-        .lean();
-    let colors = await Product.find({ ...category }).distinct(
-        "subProducts.color.color"
-    );
-    let brandsDb = await Product.find({ ...category }).distinct("brand");
-    let sizes = await Product.find({ ...category }).distinct(
-        "subProducts.sizes.size"
-    );
-    let details = await Product.find({ ...category }).distinct("details");
-    let stylesDb = filterArray(details, "Style");
-    let materialsDb = filterArray(details, "Material");
-    let styles = removeDublicates(stylesDb);
-    let materials = removeDublicates(materialsDb);
-    let brands = removeDublicates(brandsDb);
-    let totalProducts = await Product.countDocuments({
-        ...search,
-        ...category,
-        ...brand,
-        ...style,
-        ...size,
-        ...color,
-        ...material,
-        ...gender,
-        ...price,
-        ...shipping,
-        ...rating,
-    });
+    const data = await getBrowseData(context.query);
 
     return {
         props: {
-            categories: JSON.parse(JSON.stringify(categories)),
-            products: JSON.parse(JSON.stringify(products)),
-            subCategories: JSON.parse(JSON.stringify(subCategories)),
-            sizes,
-            colors,
-            brands,
-            styles,
-            materials,
-            paginationCount: Math.ceil(totalProducts / pageSize),
+            categories: JSON.parse(JSON.stringify(data.categories)),
+            products: JSON.parse(JSON.stringify(data.products)),
+            subCategories: JSON.parse(JSON.stringify(data.subCategories)),
+            sizes: data.sizes,
+            colors: data.colors,
+            brands: data.brands,
+            styles: data.styles,
+            materials: data.materials,
+            paginationCount: data.paginationCount,
         },
     };
 }

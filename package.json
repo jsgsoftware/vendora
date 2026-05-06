@@ -5,14 +5,14 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "NODE_ENV=production node server.js"
+    "start": "NODE_ENV=production node server.js",
+    "insforge:db:setup": "node scripts/insforge-db-setup.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.10.8",
     "@emotion/styled": "^11.10.8",
     "@heroicons/react": "^2.0.16",
     "@mui/material": "^5.11.15",
-    "@next-auth/mongodb-adapter": "^1.1.1",
     "@reduxjs/toolkit": "^1.9.3",
     "@types/node": "18.14.6",
     "@types/react": "18.0.28",
@@ -28,8 +28,6 @@
     "formik": "^2.2.9",
     "googleapis": "^112.0.0",
     "jsonwebtoken": "^9.0.0",
-    "mongodb": "^4.14.0",
-    "mongoose": "^7.0.1",
     "next": "13.2.3",
     "next-auth": "^4.20.1",
     "next-connect": "^0.13.0",

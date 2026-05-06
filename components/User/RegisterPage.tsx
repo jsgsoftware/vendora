@@ -3,13 +3,13 @@ import { Form, Formik } from "formik";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import amazonLogoDark from "../../public/assets/images/amazon-dark.png";
 import LoginInput from "./LoginInput";
 import * as Yup from "yup";
 import ButtonInput from "./ButtonInput";
 import Router from "next/router";
 import { signIn } from "next-auth/react";
 import axios from "axios";
+import vendoraLogo from "../../public/assets/images/vendora-logo.png";
 
 import DotLoaderSpinner from "../loaders/dotLoader/DotLoaderSpinner";
 
@@ -58,19 +58,25 @@ const RegisterPage = ({ providers }: any) => {
             setUser({
                 ...user, error: "", success: data.message
             })
-            setLoading(false);
+            let options = {
+                redirect: false,
+                email: email,
+                password: password
+            }
 
-            setTimeout( async () => {
-                setLoading(true);
-                let options = {
-                    redirect: false,
-                    email: email,
-                    password: password
-                }
+            const res = await signIn("credentials", options);
 
-                const res = await signIn("credentials", options);
-                Router.push("/")
-            }, 2000);
+            if (res?.error) {
+                setLoading(false);
+                setUser({
+                    ...user,
+                    success: "",
+                    error: res.error,
+                });
+                return;
+            }
+
+            Router.push("/profile");
 
         } catch(error: any) {
             setLoading(false);
@@ -91,9 +97,10 @@ const RegisterPage = ({ providers }: any) => {
             <div className="mx-auto my-2">
                 <Link href="/">
                     <Image
-                        src={amazonLogoDark}
-                        alt="amazon-logo"
-                        className="object-contain w-28 md:w-48 pt-2"
+                        src={vendoraLogo}
+                        alt="Vendora logo"
+                        className="object-contain w-44 md:w-56"
+                        priority
                     />
                 </Link>
             </div>
@@ -159,7 +166,7 @@ const RegisterPage = ({ providers }: any) => {
                 </div>
 
                 <p className="text-xs my-2">
-                    {"By continuing, you agree to Amazon's Conditions of Use and Privacy Notice."}
+                    {"By continuing, you agree to Vendora's Conditions of Use and Privacy Notice."}
                 </p>
 
                 

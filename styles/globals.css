@@ -2,6 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --vendora-ink: #10243b;
+    --vendora-soft: #f7f8fc;
+    --vendora-muted: #4b5563;
+    --vendora-accent: #7b2ff7;
+    --vendora-accent-strong: #6a25e0;
+    --vendora-accent-light: #cdb7ff;
+    --vendora-accent-soft: #e9e1ff;
+    --vendora-surface: #ffffff;
+    --vendora-border: #e5e7eb;
+    --vendora-success: #22c55e;
+    --vendora-warning: #f59e0b;
+    --vendora-error: #ef4444;
+}
+
+html,
+body {
+    font-family: "Trebuchet MS", "Segoe UI", Verdana, sans-serif;
+    background: radial-gradient(circle at top, #ffffff 0%, #f7f8fc 55%, #eef0ff 100%);
+    color: var(--vendora-ink);
+}
+
 @layer components {
     .link {
         @apply cursor-pointer hover:underline;
@@ -24,7 +46,7 @@
     }
 
     .button-orange {
-        @apply bg-gradient-to-b from-[#f8e3ad] to-[#EEBA37] border border-[#b0820f] rounded;
+        @apply bg-gradient-to-r from-[#7B2FF7] to-[#B06CFF] border border-[#7B2FF7] rounded text-white;
     }
 
     .menu-sidebar h3 {
@@ -39,12 +61,30 @@
         @apply h-5 ml-auto text-gray-500 stroke-[3];
     }
 
+    .menu-sidebar-scroll {
+        scrollbar-width: thin;
+        scrollbar-color: #cdb7ff transparent;
+    }
+
+    .menu-sidebar-scroll::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .menu-sidebar-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .menu-sidebar-scroll::-webkit-scrollbar-thumb {
+        background: #cdb7ff;
+        border-radius: 9999px;
+    }
+
     .link-footer ul {
-        @apply text-slate-200 text-xs space-y-2;
+        @apply text-gray-600 text-xs space-y-2;
     }
 
     .link-footer h5 {
-        @apply font-semibold text-white mb-3;
+        @apply font-semibold text-[#0B1A33] mb-3;
     }
 
     .link-footer ul > li {
@@ -52,11 +92,11 @@
     }
 
     .footer-link-services li {
-        @apply w-24 hover:underline text-slate-300 text-xs;
+        @apply w-24 hover:underline text-gray-600 text-xs;
     }
 
     .footer-link-services li p {
-        @apply text-[#999];
+        @apply text-gray-500;
     }
 
     .error-input input {
@@ -155,6 +195,44 @@
     }
     .tooltip_btn > span {
         @apply absolute left-[2px] bottom-0 bg-red-400 w-[27px] hover:bg-red-600;
+    }
+}
+
+@layer utilities {
+    .text-vendora-ink {
+        color: var(--vendora-ink);
+    }
+
+    .text-vendora-muted {
+        color: var(--vendora-muted);
+    }
+
+    .bg-vendora-ink {
+        background-color: var(--vendora-ink);
+    }
+
+    .bg-vendora-soft {
+        background-color: var(--vendora-soft);
+    }
+
+    .bg-vendora-surface {
+        background-color: var(--vendora-surface);
+    }
+
+    .bg-vendora-accent {
+        background-color: var(--vendora-accent);
+    }
+
+    .bg-vendora-accent-soft {
+        background-color: var(--vendora-accent-soft);
+    }
+
+    .border-vendora-accent {
+        border-color: var(--vendora-accent);
+    }
+
+    .border-vendora {
+        border-color: var(--vendora-border);
     }
 }
 

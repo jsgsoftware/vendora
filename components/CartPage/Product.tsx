@@ -14,6 +14,8 @@ const Product = ({ product, selected, setSelected, cart }: any) => {
     const dispatch = useAppDispatch();
     const {cartItems} = cart;
     const [active, setActive] = useState(); 
+    const unitPrice = Number(product?.price || 0);
+    const unitPriceBefore = Number(product?.priceBefore || 0);
 
     useEffect(() => {
         const check = selected.find((p: any) => p._uid == product._uid);
@@ -98,14 +100,14 @@ const Product = ({ product, selected, setSelected, cart }: any) => {
                         />
                     </div>
                     <span>{product.size}</span>
-                    <span>{product.price.toFixed(2)}</span>
+                    <span>{unitPrice.toFixed(2)}</span>
                 </div>
                 <div className="flex flex-col md:flex-row md:items-center">
                     <span className="font-bold md:text-xl">
-                        USD{(product.price * product.qty).toFixed(2)} $
+                        USD{(unitPrice * product.qty).toFixed(2)} $
                     </span>
                     <span className="ml-2 text-sm line-through text-slate-400">
-                        USD{(product.priceBefore * product.qty).toFixed(2)} $
+                        USD{(unitPriceBefore * product.qty).toFixed(2)} $
                     </span>
                 </div>
                 <span className="text-blue-500 text-sm">

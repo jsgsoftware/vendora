@@ -8,13 +8,18 @@ import "swiper/css/navigation";
 // import required modules
 import { Pagination, Navigation } from "swiper";
 
-const HomeProductSwiper = ({ products, category }: any) => {
+const HomeProductSwiper = ({ products, categoryId, categoryName }: any) => {
     let selectedProducts = products.filter(
-        (p: any) => p.category.name === category
+        (p: any) => String(p.category?._id) === String(categoryId)
     );
+
+    if (!selectedProducts.length) {
+        return null;
+    }
+
     return (
         <div className="z-50 flex flex-col rounded bg-white h-auto mb-4 mx-4  p-4 border">
-            <h4 className="font-bold text-xl mb-4">{category}</h4>
+            <h4 className="font-bold text-xl mb-4">{categoryName}</h4>
             <Swiper
                 slidesPerView={1}
                 spaceBetween={10}

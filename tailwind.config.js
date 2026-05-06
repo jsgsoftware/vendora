@@ -12,10 +12,18 @@ module.exports = {
     extend: {
       colors: {
         amazon: {
-          blue_light: '#232f3e',
-          blue_dark: '#131921',
-          orange: '#febd69'
-        }
+          blue_light: '#F7F8FC',
+          blue_dark: '#FFFFFF',
+          orange: '#7B2FF7'
+        },
+        vendora: {
+          ink: '#10243b',
+          soft: '#F7F8FC',
+          accent: '#7B2FF7',
+          accent_light: '#CDB7FF',
+          accent_soft: '#E9E1FF',
+          mint: '#22C55E'
+        },
       }
     },
   },

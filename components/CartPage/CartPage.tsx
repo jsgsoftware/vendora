@@ -71,7 +71,15 @@ const CartPage = ({ cart }: any) => {
     const saveCartToDbHandler = async () => {
         if (session) {
             setLoading(true);
-            const res = await saveCart(selected);
+            // Map to lean payload matching backend contract
+            const cartPayload = selected.map((item: any) => ({
+                _id: item._id,
+                style: item.style,
+                size: item.size,
+                qty: item.qty,
+                color: item.color || { color: "", image: "" },
+            }));
+            const res = await saveCart(cartPayload);
             router.push("/checkout");
         } else {
             router.push("/auth/signin");

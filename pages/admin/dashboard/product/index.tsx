@@ -3,6 +3,7 @@ import Category from "@/models/Category";
 import Product from "@/models/Product";
 import db from "@/utils/db";
 import AllProduct from "@/components/admin/product/index";
+import { requirePortalSession } from "@/utils/portalAuth";
 
 const Products = ({ products }: any) => {
     // console.log('products: ', products)
@@ -16,6 +17,11 @@ const Products = ({ products }: any) => {
 export default Products;
 
 export const getServerSideProps = async (ctx: any) => {
+    const auth = await requirePortalSession(ctx, ["admin"]);
+    if (!auth.ok) {
+        return auth.redirect;
+    }
+
     await db.connectDb();
     const products = await Product.find({})
         .populate({ path: "category", model: Category })

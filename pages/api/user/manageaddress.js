@@ -17,13 +17,13 @@ handler.put(async (req, res) => {
             let temp_addresses = {};
             if (user_addresses[i]._id == id) {
                 temp_addresses = {
-                    ...user_addresses[i].toObject(),
+                    ...user_addresses[i],
                     active: true,
                 };
                 addresses.push(temp_addresses);
             } else {
                 temp_addresses = {
-                    ...user_addresses[i].toObject(),
+                    ...user_addresses[i],
                     active: false,
                 };
                 addresses.push(temp_addresses);

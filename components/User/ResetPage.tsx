@@ -2,7 +2,6 @@ import { Form, Formik } from "formik";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import amazonLogoDark from "../../public/assets/images/amazon-dark.png";
 import LoginInput from "./LoginInput";
 import * as Yup from "yup";
 import ButtonInput from "./ButtonInput";
@@ -11,6 +10,7 @@ import axios from "axios";
 import DotLoaderSpinner from "../loaders/dotLoader/DotLoaderSpinner";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
 import { signIn } from "next-auth/react";
+import vendoraLogo from "../../public/assets/images/vendora-logo.png";
 
 const initialUser = {
     password: "",
@@ -79,9 +79,10 @@ const ResetPage = ({ userId }: any) => {
             <div className="mx-auto my-2">
                 <Link href="/">
                     <Image
-                        src={amazonLogoDark}
-                        alt="amazon-logo"
-                        className="object-contain w-28 md:w-48 pt-2"
+                        src={vendoraLogo}
+                        alt="Vendora logo"
+                        className="object-contain w-44 md:w-56"
+                        priority
                     />
                 </Link>
             </div>

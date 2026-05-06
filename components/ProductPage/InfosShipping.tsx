@@ -56,7 +56,7 @@ const InfosShipping = ({ product }: any) => {
                 <tbody>
                     <tr className="grid grid-cols-3">
                         <td className="text-slate-500">Ships from</td>
-                        <td className="col-span-2">Amazon</td>
+                        <td className="col-span-2">Vendora</td>
                     </tr>
                     <tr className="grid grid-cols-3">
                         <td className="text-slate-500">Sold by</td>

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 const Product = ({ product }: any) => {
+    const unitPrice = Number(product?.price || 0);
     return (
         <div className="mt-2 grid grid-cols-3  max-md:grid-rows-1 md:grid-cols-6  border-b p-2 pb-4  ">
             <div className="flex flex-col-reverse md:flex-row md:items-center">
@@ -30,7 +31,7 @@ const Product = ({ product }: any) => {
                 </div>
                 <div className="flex md:flex-row">
                     <span className="font-semibold ">
-                        {product.price.toFixed(2)}$
+                        {unitPrice.toFixed(2)}$
                     </span>
                     <span className="mx-2">x</span>
                     <span className="font-semibold ">
@@ -39,7 +40,7 @@ const Product = ({ product }: any) => {
                 </div>
                 <div className="flex justify-end md:flex-row">
                     <span className="font-bold ">
-                        {(product.price * product.qty).toFixed(2)} $
+                        {(unitPrice * product.qty).toFixed(2)} $
                     </span>
                 </div>
             </div>

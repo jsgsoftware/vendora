@@ -2,11 +2,7 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header/Header";
 import MenuSideBar from "@/components/Header/MenuSidebar";
 import ProductPage from "@/components/ProductPage/ProductPage";
-import db from "@/utils/db";
-import Product from "@/models/Product";
-import Category from "@/models/Category";
-import SubCategory from "@/models/SubCategory";
-import User from "@/models/User";
+import { getProductBySlug } from "@/utils/mvCatalogRead";
 
 const SingleProduct = ({ product }: any) => {
     // console.log(product);
@@ -27,16 +23,42 @@ export default SingleProduct;
 export const getServerSideProps = async (context: any) => {
     const { query } = context;
     const slug = query.slug;
-    const style = query.style || 0;
-    const size = query.size || 0;
-    db.connectDb();
-    let product = await Product.findOne({ slug })
-        .populate({ path: "category", model: Category })
-        .populate({ path: "subCategories", model: SubCategory })
-        .populate({ path: "reviews.reviewBy", model: User })
-        .lean();
-    let subProduct = product.subProducts[style];
-    let prices = subProduct.sizes
+    const requestedStyle = Number(query.style);
+    const requestedSize = Number(query.size);
+    let product = await getProductBySlug(slug);
+
+    if (!product) {
+        return {
+            notFound: true,
+        };
+    }
+
+    const subProducts = Array.isArray(product.subProducts) ? product.subProducts : [];
+    if (!subProducts.length) {
+        return {
+            notFound: true,
+        };
+    }
+
+    const style = Number.isInteger(requestedStyle) && requestedStyle >= 0 && requestedStyle < subProducts.length
+        ? requestedStyle
+        : 0;
+
+    let subProduct = subProducts[style] || subProducts[0];
+    const subSizes = Array.isArray(subProduct?.sizes) ? subProduct.sizes : [];
+    if (!subSizes.length) {
+        subProduct = {
+            ...subProduct,
+            sizes: [{ size: "ONE", qty: 0, price: 0 }],
+        };
+    }
+
+    const sizes = subProduct.sizes;
+    const size = Number.isInteger(requestedSize) && requestedSize >= 0 && requestedSize < sizes.length
+        ? requestedSize
+        : 0;
+
+    let prices = sizes
         .map((s: any) => s.price)
         .sort((a: any, b: any) => a - b);
 
@@ -44,12 +66,12 @@ export const getServerSideProps = async (context: any) => {
         ...product,
         style,
         images: subProduct.images,
-        sizes: subProduct.sizes,
+        sizes,
         discount: subProduct.discount,
         sku: subProduct.sku,
-        colors: product.subProducts.map((p: any) => p.color),
+        colors: subProducts.map((p: any) => p.color),
         priceRange:
-            prices.discount > 1
+            subProduct.discount > 0
                 ? `From ${(prices[0] - prices[0] / subProduct.discount).toFixed(
                       2
                   )} to ${(
@@ -59,13 +81,13 @@ export const getServerSideProps = async (context: any) => {
                 : `From ${prices[0]} to ${prices[prices.length - 1]}$`,
         price:
             subProduct.discount > 0
-                ? (
-                      subProduct.sizes[size].price -
-                      subProduct.sizes[size].price / subProduct.discount
-                  ).toFixed(2)
-                : subProduct.sizes[size].price,
-        priceBefore: subProduct.sizes[size].price,
-        quantity: subProduct.sizes[size].qty,
+                ? Number((
+                      sizes[size].price -
+                      sizes[size].price / subProduct.discount
+                  ).toFixed(2))
+                : sizes[size].price,
+        priceBefore: sizes[size].price,
+        quantity: sizes[size].qty,
         ratings: [
             {
                 percentage: calculatePercentage("5"),
@@ -83,7 +105,7 @@ export const getServerSideProps = async (context: any) => {
                 percentage: calculatePercentage("1"),
             },
         ],
-        allSizes: product.subProducts
+        allSizes: subProducts
             .map((p: any) => p.sizes)
             .flat()
             .sort((a: any, b: any) => a.size - b.size)
@@ -95,6 +117,9 @@ export const getServerSideProps = async (context: any) => {
     };
     
     function calculatePercentage(num: any) {
+        if (!Array.isArray(product.reviews) || !product.reviews.length) {
+            return "0.0";
+        }
         return (
             (product.reviews.reduce((total: any, review: any) => {
                 return (
@@ -107,8 +132,6 @@ export const getServerSideProps = async (context: any) => {
             product.reviews.length
         ).toFixed(1);
     }
-
-    db.disconnectDb();
 
     return {
         props: {

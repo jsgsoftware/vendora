@@ -3,7 +3,6 @@ import { Form, Formik } from "formik";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import amazonLogoDark from "../../public/assets/images/amazon-dark.png";
 import LoginInput from "./LoginInput";
 import * as Yup from "yup";
 import ButtonInput from "./ButtonInput";
@@ -11,6 +10,7 @@ import Router from "next/router";
 
 import { signIn } from "next-auth/react";
 import DotLoaderSpinner from "../loaders/dotLoader/DotLoaderSpinner";
+import vendoraLogo from "../../public/assets/images/vendora-logo.png";
 
 const initialUser = {
     login_email: "",
@@ -72,9 +72,10 @@ const SignInPage = ({ providers, csrfToken, callbackUrl }: any) => {
                 <div className="mx-auto my-2">
                     <Link href="/">
                         <Image
-                            src={amazonLogoDark}
-                            alt="amazon-logo"
-                            className="object-contain w-28 md:w-48 pt-2"
+                            src={vendoraLogo}
+                            alt="Vendora logo"
+                            className="object-contain w-44 md:w-56"
+                            priority
                         />
                     </Link>
                 </div>
@@ -120,7 +121,7 @@ const SignInPage = ({ providers, csrfToken, callbackUrl }: any) => {
 
                     <p className="text-xs mt-2">
                         {
-                            "By continuing, you agree to Amazon's Conditions of Use and Privacy Notice."
+                            "By continuing, you agree to Vendora's Conditions of Use and Privacy Notice."
                         }
                     </p>
                     <div className="flex">
@@ -193,13 +194,13 @@ const SignInPage = ({ providers, csrfToken, callbackUrl }: any) => {
                 before:left-1 before:top-[50%] before:absolute before:bg-slate-200 before:h-[1px] before:w-[20%] sm:before:w-[25%] md:before:w-[31%]
                 after:right-1 after:top-[50%] after:absolute after:bg-slate-200 after:h-[1px] after:w-[20%] sm:after:w-[25%] md:after:w-[31%]"
                     >
-                        New to Amazon?
+                        New to Vendora?
                     </span>
                     <Link
                         href="/auth/register"
                         className="flex items-center justify-center w-full mt-4 button-orange  py-[0.5rem] text-sm text-gray-900 active:from-amazon-orange active:to-yellow-200 "
                     >
-                        Create your Amazon account
+                        Create your Vendora account
                     </Link>
                 </div>
             </div>

@@ -5,37 +5,27 @@ export const validateEmail = (email) => {
 
 
 export const validateCreateProduct = (product, images) => {
-    let sizes = product.sizes;
-    let details = product.details;
-    let questions = product.questions;
+    let sizes = product.sizes || [];
+    let details = product.details || [];
+    let questions = product.questions || [];
 
     const checks = [{
         msg: 'Name, Description, Brand added successfully.',
         type: "success"
     }];
 
-    if(images.length < 3) {
+    if(images.length < 1) {
         checks.push({
-            msg: `Choose atleast 3 images (${3 - images.length} remaining).`,
+            msg: `Choose at least 1 image.`,
             type: "error"
         })
     } else {
         checks.push({
-            msg: `Atleast 3 images choosen.`,
+            msg: `At least one image selected.`,
             type: "success"
         })
     } 
-    if (!product.color.color) {
-        checks.push({
-            msg: `Choose a main product color.`,
-            type: "error"
-        })
-    } else {
-        checks.push({
-            msg: `Product color has been choosen.`,
-            type: "success"
-        })
-    }
+
     if (!product.color.image) {
         checks.push({
             msg: `Choose a main product style image.`,
@@ -47,22 +37,41 @@ export const validateCreateProduct = (product, images) => {
             type: "success"
         })
     }
-    for (let i = 0; i < sizes.length; i++ ) {
-        if(sizes[i].qty == "" || sizes[i].price == "" || sizes[i].size == "" ) {
+
+    const primaryStock = sizes[0] || {};
+    if (primaryStock.qty === "" || primaryStock.qty === undefined || primaryStock.price === "" || primaryStock.price === undefined) {
+        checks.push({
+            msg: `Stock quantity and price are required.`,
+            type: "error"
+        });
+    } else {
+        checks.push({
+            msg: `Stock information added.`,
+            type: "success"
+        });
+    }
+
+    if (product.productType === "subscription") {
+        const hasIntervals = Array.isArray(product.subscriptionIntervals) && product.subscriptionIntervals.length > 0;
+        const hasDeliveries = Array.isArray(product.subscriptionDeliveries) && product.subscriptionDeliveries.length > 0;
+        if (!hasIntervals || !hasDeliveries) {
             checks.push({
-                msg: `Please fill all information on sizes.`,
+                msg: `Please select subscription intervals and number of deliveries.`,
                 type: "error"
-            })
-            break;
-        } else {
-            checks.push({
-                msg: `Atleast one size added.`,
-                type: "success"
-            })
+            });
         }
     }
-    for (let i = 0; i < details.length; i++ ) {
-        if(details[i].name == "" || details[i].value == "" ) {
+
+    if (product.productType === "booking" && product.bookingType === "date_time" && !product.bookingDuration) {
+        checks.push({
+            msg: `Please select booking duration for date and time reservations.`,
+            type: "error"
+        });
+    }
+
+    const detailsWithContent = details.filter((item) => item?.name || item?.value);
+    for (let i = 0; i < detailsWithContent.length; i++ ) {
+        if(detailsWithContent[i].name == "" || detailsWithContent[i].value == "" ) {
             checks.push({
                 msg: `Please fill all information on details.`,
                 type: "error"
@@ -75,8 +84,9 @@ export const validateCreateProduct = (product, images) => {
             })
         }
     }
-    for (let i = 0; i < questions.length; i++ ) {
-        if(questions[i].question == "" || questions[i].answer == "" ) {
+    const questionsWithContent = questions.filter((item) => item?.question || item?.answer);
+    for (let i = 0; i < questionsWithContent.length; i++ ) {
+        if(questionsWithContent[i].question == "" || questionsWithContent[i].answer == "" ) {
             checks.push({
                 msg: `Please fill all information on questions.`,
                 type: "error"
